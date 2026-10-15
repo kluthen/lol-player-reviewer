@@ -5,6 +5,7 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "forwardPorts": [3000],
+  "appPort": [3000],
   "portsAttributes": {
     "3000": { "label": "Nuxt dev server", "onAutoForward": "notify" }
   },
