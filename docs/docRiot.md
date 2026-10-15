@@ -1,6 +1,6 @@
 # API Riot Games pour Rift Review
 
-*Récupérer un joueur et ses dernières parties*
+_Récupérer un joueur et ses dernières parties_
 
 Cette fiche explique comment alimenter le profil, les statistiques et l’historique de tes maquettes League of Legends. Le projet est limité à 20 parties, mises en cache sur le serveur.
 
@@ -54,16 +54,16 @@ Ne place jamais cette clé dans le JavaScript envoyé au navigateur ni dans un d
 
 Les champs ci-dessous viennent du détail de partie, sauf le pseudo et le tag qui viennent du compte Riot. Les statistiques de synthèse sont calculées par ton application sur les parties chargées et retenues.
 
-| À afficher | Donnée ou calcul |
-| --- | --- |
-| Pseudo et tag | `gameName` et `tagLine` du compte Riot |
-| Champion | `championId` et `championName` du participant |
-| Victoire ou défaite | `win` : `true` = victoire ; `false` = défaite |
-| Score 4 / 2 / 18 | `kills` / `deaths` / `assists` : éliminations, morts, assistances |
-| Date et durée | `info.gameStartTimestamp` ; `info.gameDuration` en secondes pour les parties récentes |
-| Mode de jeu | `info.queueId` : `420` = Solo/Duo ; `440` = Flex ; `450` = ARAM |
-| Rôle | `teamPosition` : `TOP`, `JUNGLE`, `MIDDLE`, `BOTTOM`, `UTILITY`. `UTILITY` = support ; rôle non applicable en ARAM. |
-| Champions les plus joués | Regrouper par `championId` et compter les parties |
+| À afficher               | Donnée ou calcul                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Pseudo et tag            | `gameName` et `tagLine` du compte Riot                                                                              |
+| Champion                 | `championId` et `championName` du participant                                                                       |
+| Victoire ou défaite      | `win` : `true` = victoire ; `false` = défaite                                                                       |
+| Score 4 / 2 / 18         | `kills` / `deaths` / `assists` : éliminations, morts, assistances                                                   |
+| Date et durée            | `info.gameStartTimestamp` ; `info.gameDuration` en secondes pour les parties récentes                               |
+| Mode de jeu              | `info.queueId` : `420` = Solo/Duo ; `440` = Flex ; `450` = ARAM                                                     |
+| Rôle                     | `teamPosition` : `TOP`, `JUNGLE`, `MIDDLE`, `BOTTOM`, `UTILITY`. `UTILITY` = support ; rôle non applicable en ARAM. |
+| Champions les plus joués | Regrouper par `championId` et compter les parties                                                                   |
 
 ## Calculer la synthèse
 
