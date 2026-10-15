@@ -1,0 +1,120 @@
+.search-state {
+  position: relative;
+  min-height: 37rem;
+  max-width: 105rem;
+  margin-inline: auto;
+  padding: 7rem 3rem;
+  isolation: isolate;
+  overflow: hidden;
+}
+.search-state h1 {
+  font: bold 3.15rem/1.2 var(--serif);
+  letter-spacing: -0.025em;
+  margin: 1rem 0 1.3rem;
+}
+.search-state h1 span {
+  color: var(--gold);
+}
+.search-state p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+.welcome-art {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 26%;
+  background:
+    linear-gradient(90deg, var(--bg) 3%, #06162050 80%),
+    url('/images/Nami-splash.jpg') 65% center/cover;
+  opacity: 0.6;
+  mask-image: linear-gradient(180deg, #000 75%, transparent);
+}
+.welcome-copy {
+  position: relative;
+  max-width: 48rem;
+}
+.welcome-search {
+  max-width: 30rem;
+  margin-top: 2.2rem;
+}
+.welcome-search .player-search {
+  height: 3.3rem;
+  background: #0b202ce8;
+}
+.welcome-search input {
+  font-size: 0.95rem;
+}
+.search-state .search-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.65rem !important;
+  margin-top: 0.75rem;
+}
+.welcome-facts {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.welcome-facts span {
+  border-top: 1px solid #6b6245;
+  padding-top: 0.65rem;
+}
+.loading-state,
+.error-state {
+  text-align: center;
+  padding-top: 6rem;
+  min-height: 34rem;
+}
+.state-icon {
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.error-state h1,
+.loading-state h1 {
+  font-size: 2.6rem;
+}
+.error-state > p:not(.eyebrow) {
+  max-width: 42rem;
+  margin: 0 auto 1rem;
+}
+.loading-state .eyebrow,
+.error-state .eyebrow {
+  margin-top: 0.8rem;
+}
+.loading-bars {
+  display: flex;
+  gap: 1rem;
+  max-width: 46rem;
+  margin: 2.5rem auto;
+}
+.loading-bars span {
+  height: 6rem;
+  flex: 1;
+  border-radius: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.loading-bars span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.loading-bars span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.spinner {
+  animation: spin 1.2s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
