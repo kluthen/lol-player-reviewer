@@ -1,0 +1,25 @@
+{
+  "name": "lol-player-reviewer",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Nuxt dev server", "onAutoForward": "notify" }
+  },
+  "containerEnv": {
+    "NUXT_TELEMETRY_DISABLED": "1"
+  },
+  "postCreateCommand": "if [ -f package.json ]; then npm install; fi",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Vue.volar",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}
