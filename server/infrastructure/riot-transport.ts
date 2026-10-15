@@ -1,6 +1,16 @@
 import { ReviewError } from '../domain/review-error.ts'
+import { PLATFORMS } from '../../shared/domain/platform.ts'
 
 type Fetch = typeof globalThis.fetch
+
+// Regional hosts (account-v1, match-v5) and platform hosts (summoner-v4, league-v4).
+const HOSTS: ReadonlySet<string> = new Set([
+  'americas',
+  'asia',
+  'europe',
+  'sea',
+  ...Object.keys(PLATFORMS),
+])
 
 export class RiotTransport {
   private starts: number[] = []
@@ -12,7 +22,8 @@ export class RiotTransport {
     private readonly fetcher: Fetch = globalThis.fetch,
   ) {}
 
-  async get(path: string): Promise<unknown> {
+  async get(host: string, path: string): Promise<unknown> {
+    if (!HOSTS.has(host)) throw new Error('Unknown Riot host')
     const key = this.apiKey()
     if (!key || key === '.....') {
       throw new ReviewError(
@@ -34,7 +45,7 @@ export class RiotTransport {
     if (Date.now() < this.blockedUntil) this.rateLimited(this.blockedUntil - Date.now())
     let response: Response
     try {
-      response = await this.fetcher(`https://europe.api.riotgames.com${path}`, {
+      response = await this.fetcher(`https://${host}.api.riotgames.com${path}`, {
         headers: { 'X-Riot-Token': key, Accept: 'application/json' },
         signal: AbortSignal.timeout(10_000),
         redirect: 'error',

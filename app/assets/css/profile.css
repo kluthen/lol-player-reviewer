@@ -21,6 +21,25 @@
   gap: 2rem;
   height: 11.5rem;
 }
+.profile-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.level-badge {
+  position: absolute;
+  left: 50%;
+  bottom: -0.45rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  background: #071923;
+  border: 1px solid #96783f;
+  border-radius: 1rem;
+  padding: 0.15rem 0.55rem;
+}
 .profile-avatar {
   width: 8.75rem;
   height: 8.75rem;
@@ -38,6 +57,9 @@
   border-radius: 50%;
   height: 100%;
   width: 100%;
+}
+.profile-avatar .avatar-mobile {
+  display: none;
 }
 .profile-identity h1 {
   font-family: var(--serif);
@@ -69,6 +91,15 @@
   color: #c0ced7;
   background: #091b28cc;
 }
+.ranked-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.2rem;
+  margin-top: 0.45rem;
+  font-size: 0.7rem;
+  color: #c0ced7;
+  text-shadow: 0 1px 8px #03111c;
+}
 .mobile-tag,
 .mobile-eyebrow {
   display: none;
@@ -98,7 +129,7 @@
 }
 .summary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.12fr 0.72fr;
+  grid-template-columns: 1fr 1fr 1.12fr minmax(12rem, 0.72fr);
   gap: 1rem;
   align-items: start;
 }
@@ -151,9 +182,16 @@ select {
 select:hover {
   border-color: #618192;
 }
-.order-select {
+.period-select {
   margin-left: 0.8rem;
   display: block;
+}
+.is-updating .summary-grid .stat-card,
+.is-updating .overview-panels,
+.is-updating .performance-panel,
+.is-updating .review-section {
+  opacity: 0.55;
+  transition: opacity 0.2s;
 }
 .sample-notice {
   color: #9db3c2;
@@ -207,6 +245,10 @@ select:hover {
   font-size: 0.65rem;
   color: var(--muted);
 }
+.champion-grid figcaption small + small {
+  font-size: 0.6rem;
+  line-height: 1.4;
+}
 .champion-image {
   display: inline-block;
   overflow: hidden;
@@ -243,6 +285,9 @@ select:hover {
 }
 .latest-match:hover {
   background: #132c38;
+}
+.latest-match:focus-visible {
+  outline-offset: -2px;
 }
 .latest-match .champion-image {
   width: 3rem;
@@ -295,4 +340,28 @@ select:hover {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.7;
+  margin: 0.8rem 0 1rem;
+}
+.performance-panel {
+  margin-top: 1rem;
+}
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.2rem 1.5rem;
+  margin: 0;
+  padding: 0.6rem 0 0.4rem;
+}
+.performance-grid > div {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #1c3544;
+}
+.performance-grid dt {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.performance-grid dd {
+  margin: 0.2rem 0 0;
+  font: 600 1.15rem/1.3 var(--serif);
+  font-variant-numeric: tabular-nums;
 }

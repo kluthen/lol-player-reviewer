@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { IconMenu2, IconX } from '@tabler/icons-vue'
+import { historyPath, profilePath } from '~/utils/routes'
 
 const route = useRoute()
+const player = usePlayerRoute()
 const open = ref(false)
-const query = computed(() => (route.query.joueur ? { joueur: route.query.joueur } : {}))
+const profileLink = computed(() => (player.value ? profilePath(player.value) : '/'))
+const historyLink = computed(() => (player.value ? historyPath(player.value) : null))
+const onHistory = computed(() =>
+  String(route.name ?? '').startsWith('players-platform-player-history'),
+)
+const onProfile = computed(() => !onHistory.value)
 watch(
   () => route.fullPath,
   () => {
@@ -15,7 +22,7 @@ watch(
 <template>
   <header class="app-header">
     <div class="header-inner">
-      <NuxtLink class="brand" :to="{ path: '/', query }" aria-label="Rift Review, profil joueur">
+      <NuxtLink class="brand" to="/" aria-label="Rift Review, accueil">
         <img src="/images/brand-mark.png" alt="" width="35" height="49" />
         <span
           ><span class="brand-name">Rift <span>Review</span></span
@@ -24,15 +31,16 @@ watch(
       </NuxtLink>
       <nav class="desktop-nav" aria-label="Navigation principale">
         <NuxtLink
-          :to="{ path: '/', query }"
-          :aria-current="route.path === '/' ? 'page' : undefined"
-          :class="{ active: route.path === '/' }"
+          :to="profileLink"
+          :aria-current="onProfile ? 'page' : undefined"
+          :class="{ active: onProfile }"
           >Joueurs</NuxtLink
         >
         <NuxtLink
-          :to="{ path: '/historique', query }"
-          :aria-current="route.path === '/historique' ? 'page' : undefined"
-          :class="{ active: route.path === '/historique' }"
+          v-if="historyLink"
+          :to="historyLink"
+          :aria-current="onHistory ? 'page' : undefined"
+          :class="{ active: onHistory }"
           >Historique</NuxtLink
         >
       </nav>
@@ -49,12 +57,10 @@ watch(
       </button>
     </div>
     <nav v-if="open" id="mobile-nav" class="mobile-nav" aria-label="Navigation mobile">
-      <NuxtLink :to="{ path: '/', query }" :aria-current="route.path === '/' ? 'page' : undefined"
-        >Profil joueur</NuxtLink
-      >
-      <NuxtLink
-        :to="{ path: '/historique', query }"
-        :aria-current="route.path === '/historique' ? 'page' : undefined"
+      <NuxtLink :to="profileLink" :aria-current="onProfile ? 'page' : undefined">{{
+        player ? 'Profil joueur' : 'Accueil'
+      }}</NuxtLink>
+      <NuxtLink v-if="historyLink" :to="historyLink" :aria-current="onHistory ? 'page' : undefined"
         >Historique des parties</NuxtLink
       >
     </nav>

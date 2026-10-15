@@ -15,7 +15,7 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            'Préparez votre prochain entraînement League of Legends : profil joueur, statistiques récentes et parties à revoir sur EUW.',
+            'Préparez votre prochain entraînement League of Legends : profil en parties classées, historique complet et détail de chaque partie, sur tous les serveurs.',
         },
       ],
       link: [{ rel: 'icon', type: 'image/png', href: '/images/brand-mark.png' }],

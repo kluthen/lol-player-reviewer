@@ -1,20 +1,15 @@
 <script setup lang="ts">
 import { IconChevronRight } from '@tabler/icons-vue'
 import type { ReviewMatch } from '#shared/types/review'
-import { championPortrait, formatDate } from '../utils/format'
+import { REVIEW_GAMES } from '#shared/domain/review'
+import { championPortrait, formatDate, formatScore } from '~/utils/format'
+import { historyPath, matchPath, type PlayerLocation } from '~/utils/routes'
 
-const { review } = usePlayerReview()
-const emit = defineEmits<{ select: [match: ReviewMatch] }>()
-const matches = computed(
-  () =>
-    review.value?.summary.reviewIds.flatMap(
-      (id) => review.value?.matches.find((match) => match.id === id) ?? [],
-    ) ?? [],
-)
+defineProps<{ matches: ReviewMatch[]; version: string; player: PlayerLocation }>()
 </script>
 
 <template>
-  <section v-if="review" class="review-section">
+  <section class="review-section">
     <div class="review-title">
       <h2>À revoir</h2>
       <span>Apprendre<br />de chaque partie</span>
@@ -22,42 +17,35 @@ const matches = computed(
     <div v-if="matches.length" class="review-cards">
       <article v-for="match in matches" :key="match.id" class="review-card">
         <ChampionImage
-          :src="championPortrait(match.championKey, review.assetVersion)"
+          :src="championPortrait(match.championKey, version)"
           :alt="match.championName"
         />
         <div class="review-card-copy">
           <h3>{{ match.championName }}</h3>
           <p class="result loss">Défaite</p>
-          <p class="review-score">{{ match.kills }} / {{ match.deaths }} / {{ match.assists }}</p>
+          <p class="review-score">{{ formatScore(match) }}</p>
           <time :datetime="new Date(match.startedAt).toISOString()">{{
             formatDate(match.startedAt)
           }}</time>
         </div>
-        <button
-          type="button"
+        <NuxtLink
           class="button review-detail"
-          :aria-label="`Détails de la partie avec ${match.championName}`"
-          @click="emit('select', match)"
+          :to="matchPath(player, match.id)"
+          :aria-label="`Détails de la partie avec ${match.championName}, ${formatDate(match.startedAt)}`"
         >
           Détails <IconChevronRight :size="20" aria-hidden="true" />
-        </button>
+        </NuxtLink>
       </article>
     </div>
     <div v-else class="empty-inline">
-      <p>
-        {{
-          review.matches.length
-            ? 'Aucune défaite dans les parties chargées.'
-            : 'Aucune partie récente à analyser.'
-        }}
-      </p>
+      <p>Aucune défaite classée sur cette période.</p>
       <p>Retrouvez tous les résultats dans l’historique.</p>
     </div>
-    <NuxtLink :to="{ path: '/historique', query: $route.query }" class="button all-matches"
+    <NuxtLink :to="historyPath(player)" class="button all-matches"
       >Toutes les parties <IconChevronRight :size="20" aria-hidden="true"
     /></NuxtLink>
     <p class="review-rule">
-      Les deux défaites avec le plus de morts, parmi les parties chargées. Un point de départ pour
+      Les {{ REVIEW_GAMES }} dernières défaites classées de la période. Un point de départ pour
       échanger.
     </p>
   </section>
