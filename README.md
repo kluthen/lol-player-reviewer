@@ -6,7 +6,7 @@ Nuxt 4.6, Vue 3 et TypeScript strict. Domaine, cas d’usage, transport Riot, ca
 
 ## Lancer le projet
 
-Prérequis : Node.js 22.18+ ou Node.js 24 LTS, npm et une clé du [portail développeur Riot Games](https://developer.riotgames.com/).
+Prérequis : Node.js 22.18+ ou Node.js 24 LTS et npm (ou le [Dev Container](#dev-container)), et une clé du [portail développeur Riot Games](https://developer.riotgames.com/).
 
 ```bash
 npm ci
@@ -28,7 +28,26 @@ Ouvrez <http://localhost:3000>, saisissez un Riot ID **existant** au format `Pse
 
 Sous PowerShell, utilisez `npm.cmd` si `npm.ps1` est bloqué. Après ajout ou renouvellement de la clé, redémarrez le serveur. Les clés de développement Riot expirent généralement après 24 heures.
 
-Le Dev Container existant reste disponible : dans VS Code, utilisez « Dev Containers: Reopen in Container ». Les dépendances sont installées automatiquement et le port 3000 est transféré.
+### Dev Container
+
+Le dépôt fournit un Dev Container (`.devcontainer/` : Node 22 et npm 11) ; Node n’est alors pas nécessaire sur la machine. Les dépendances sont installées à la création et le port 3000 est publié sur la machine hôte.
+
+- **VS Code :** « Dev Containers: Reopen in Container ».
+- **En ligne de commande :**
+
+```bash
+npx @devcontainers/cli up --workspace-folder .
+npx @devcontainers/cli exec --workspace-folder . npm run dev
+```
+
+Pour les tests Playwright dans le conteneur, installez d’abord Chromium : `npx playwright install --with-deps chromium`.
+
+## Documentation
+
+- [docs/spec.md](docs/spec.md) : spécification (exigences, décisions, questions ouvertes).
+- [docs/data-matrix.md](docs/data-matrix.md) : source de chaque information affichée dans l’API Riot.
+- [docs/riot-api-player-history.md](docs/riot-api-player-history.md) : référence des endpoints et champs de l’API Riot utilisés.
+- [docs/decisions.md](docs/decisions.md) : journal de décisions techniques.
 
 ## Fonctionnement
 

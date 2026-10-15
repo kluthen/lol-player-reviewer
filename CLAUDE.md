@@ -1,57 +1,76 @@
-# lol-player-reviewer
+# lol-player-reviewer (Rift Review)
 
-A Nuxt app for reviewing the recent stats of a League of Legends player, using the Riot Games API. Public repo: https://github.com/kluthen/lol-player-reviewer (no license).
+A Nuxt app that lets a coach review a League of Legends player's games through the Riot Games API: a ranked profile over a period, a history of every game, and a game detail with both teams. Public repo: https://github.com/kluthen/lol-player-reviewer (no license).
+
+**Read [docs/spec.md](docs/spec.md) before changing behavior.** It holds the requirements (IDs such as P1, H5, D4), the decisions, and the open questions. [docs/decisions.md](docs/decisions.md) explains how the code implements them.
 
 ## Secrets: never read `.env`
 
 - **Never read, print, grep, source or edit `.env`** (or `.env.local`, `.env.*.local`, `.env.development`, `.env.production`, `.env.test`). It holds the Riot API key.
 - To learn which variables exist, read `.env.example`.
 - When adding a variable, add it to `.env.example` with an empty value and ask the user to fill in `.env`.
-- To check that the key works, run `npm run check:riot-key` (see below). It loads `.env` itself and never prints the key.
-- `.claude/settings.json` enforces this: deny rules block Read/Edit on those files, and a Bash hook (`.claude/hooks/block-env-access.sh`) blocks shell commands that name them. Don't work around these.
+- To check that the key works, run `npm run check:riot-key`. It loads `.env` itself and never prints the key.
+- `.claude/settings.json` enforces this: deny rules block Read/Edit on those files, and a Bash hook (`.claude/hooks/block-env-access.sh`) blocks shell commands that name them, including `--env-file=.env` on a command line. Don't work around these.
 
 ## Always work in the dev container
 
 Run every npm/Nuxt command inside the dev container (`.devcontainer/`), never on the host:
 
 ```bash
-npx @devcontainers/cli up --workspace-folder .                 # start or reuse the container
-npx @devcontainers/cli exec --workspace-folder . npm run dev    # run anything inside it
+npx @devcontainers/cli up --workspace-folder .                                          # start or reuse it
+npx @devcontainers/cli exec --workspace-folder . bash -lc 'cd /workspaces/lol && <cmd>' # run anything inside it
 ```
 
+- Port 3000 is published to the host (`appPort`), so `npm run dev` inside the container serves http://localhost:3000.
 - Image: Node 22 with **npm 11**, installed by `.devcontainer/Dockerfile`. npm 10 crashes when installing Nuxt 4 (`Cannot read properties of null (reading 'edgesOut')`).
 - npm 11 holds back dependency install scripts until they're approved. Approvals live in `allowScripts` in `package.json`. If a new dependency needs its install script, run `npm install-scripts approve <pkg> --no-allow-scripts-pin` inside the container.
-- After changing `.devcontainer/`, rebuild with `npx @devcontainers/cli up --workspace-folder . --remove-existing-container`.
+- After changing `.devcontainer/`, rebuild with `npx @devcontainers/cli up --workspace-folder . --remove-existing-container`. That removes Chromium for the e2e tests: reinstall it with `npx playwright install --with-deps chromium`.
 
 ## Commands
 
 | Command | Purpose |
-|---|---|
+| --- | --- |
 | `npm run dev` | Dev server on http://localhost:3000 |
-| `npm run build` | Production build. Use it to check that the app compiles. |
-| `npm run check:riot-key -- [platform] [GameName#TAG]` | Check that `RIOT_API_KEY` works. Default platform is `euw1`. With a Riot ID, it also checks the account and match APIs. |
+| `npm test` | Unit tests (`tests/unit/`, Node test runner with TypeScript) |
+| `npm run typecheck` | Strict TypeScript check |
+| `npm run format:check` / `npm run format` | Prettier check / fix (covers `docs/` too) |
+| `npm run build` | Production build |
+| `npm run test:e2e` | Playwright tests (`tests/e2e/`) against mocked `/api/*` responses |
+| `npm run check:riot-key -- [platform] [GameName#TAG]` | Check that the Riot key works (default platform `euw1`) |
 
-There are no tests or linter yet.
+Before handing work back, run `npm test`, `npm run typecheck`, `npm run format:check` and `npm run build`, plus `npm run test:e2e` when the UI changed.
 
 ## Layout
 
-- `app/`: Nuxt 4 app source (`app.vue`, and later `pages/`, `components/`, `composables/`)
-- `server/`: server routes (not created yet). All Riot API calls go here.
-- `scripts/`: standalone Node scripts (`check-riot-key.mjs`)
-- `docs/riot-api-player-history.md`: reference for the Riot API endpoints and every field of the player and match data
-- `01-profil-joueur.png`, `02-historique-parties.png`, `03-version-mobile.png`: UI mockups for the player profile, match history and mobile view
+- `app/`: the Nuxt front end.
+  - `pages/index.vue`: home with search.
+  - `pages/players/[platform]/[player]/index.vue`: profile; `history/index.vue`: history; `history/[matchId].vue`: game detail. `[player]` is `{gameName}-{tagLine}`, split on the last hyphen (`shared/domain/riot-id.ts`).
+  - `components/`, `composables/` (data loading: `useRiotResource`, `usePlayerHistory`, `usePlayerRoute`), `utils/`, `assets/css/`.
+  - `middleware/legacy-links.global.ts`: redirects the old `/?joueur=` and `/historique` links.
+- `server/`: the API, in layers.
+  - `api/profile.get.ts`, `api/history.get.ts`, `api/match.get.ts`: thin routes; `utils/api-handler.ts` holds the per-address quota and the error mapping.
+  - `application/`: use cases (`get-player-profile`, `get-player-history`, `get-match-detail`, `load-matches`).
+  - `domain/`: ports and errors. `infrastructure/`: Riot transport and adapter, in-memory TTL cache, Data Dragon.
+- `shared/`: code used by both sides. `domain/` holds the rules (servers and regions in `platform.ts`, period presets in `period.ts`, queues, profile calculations and tie rules in `review.ts`); `types/review.ts` is the API contract.
+- `tests/`: `unit/`, `e2e/`, `fixtures/` (fictional data, tests only).
+- `scripts/check-riot-key.mjs`: the key check.
+- `docs/`: `spec.md`, `data-matrix.md` (which API field feeds each screen), `riot-api-player-history.md` (Riot API reference), `decisions.md`, `screenshots/` (regenerated by the e2e tests).
+- `01-profil-joueur.png`, `02-historique-parties.png`, `03-version-mobile.png`: the UI mockups.
 
 ## Riot API rules
 
-- **The key never reaches the browser.** Call Riot only from Nuxt server routes (`server/api/...`), reading the key from runtime config (`runtimeConfig.riotApiKey`, set by the `NUXT_RIOT_API_KEY` env var) or `process.env.RIOT_API_KEY`. Pages call our own `/api/...` routes.
-- Identify players by **PUUID**. Look it up from a Riot ID with account-v1. The encrypted summoner ID (`id` / `summonerId`) is deprecated.
-- **Routing:** account-v1 and match-v5 use the regional host (`europe`, `americas`, `asia`, `sea`). summoner-v4, league-v4, champion-mastery-v4 and spectator-v5 use the platform host (`euw1`, `na1`, …). The mapping is in `scripts/check-riot-key.mjs` and in the doc.
-- **Rate limits:** a development key allows 20 requests/second and 100 per 2 minutes, and it expires every 24 hours. Each match is one call, so cache finished matches (they never change) and handle `429` with `Retry-After`.
-- Get champion, item, rune and spell names and icons from Data Dragon. Don't hard-code them.
+- **The key never reaches the browser, and neither do PUUIDs.** Only the server calls Riot, with the key from runtime config (`runtimeConfig.riotApiKey`, set by `RIOT_API_KEY` in dev or `NUXT_RIOT_API_KEY` in production). Pages call our own `/api/...` routes.
+- Identify players by **PUUID**, found from a Riot ID with account-v1. The encrypted summoner ID (`id` / `summonerId`) is deprecated.
+- **Routing:** account-v1 and match-v5 use a regional host (`europe`, `americas`, `asia`, `sea`); summoner-v4 and league-v4 use the player's server (`euw1`, `na1`, …). The mapping is in `shared/domain/platform.ts`.
+- **Rate limits:** the development key allows 20 requests/second and 100 per 2 minutes, and expires every 24 hours. Riot has no batch endpoint: every game is one call. Finished games are cached; keep it that way, and handle `429` with `Retry-After`.
+- **Live testing:** keep it to a few lookups, since the quota is shared with the user. Tests use fixtures and mocked responses.
+- Champion, item, rune and spell names and icons come from Data Dragon. Don't hard-code them.
 - Check `docs/riot-api-player-history.md` before guessing a field name or endpoint.
 
 ## Conventions
 
-- TypeScript, Vue 3 `<script setup lang="ts">`, Nuxt auto-imports.
+- TypeScript strict, Vue 3 `<script setup lang="ts">`, Nuxt auto-imports. Keep business rules in `shared/domain/` or `server/application/`, not in components.
+- The UI and `README.md` are in French; `CLAUDE.md` and the docs in `docs/` (except `decisions.md`) are in English.
+- When behavior changes, update `docs/decisions.md`, and `docs/spec.md` if a requirement or decision changed.
 - Match the style of the code around you. Keep changes small and focused.
-- Commit only when asked.
+- Commit only when asked. Stage files by name: don't sweep up other work in progress.
