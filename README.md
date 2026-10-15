@@ -45,6 +45,7 @@ The dev server runs on <http://localhost:3000>.
 | `npm run build`    | Build for production             |
 | `npm run preview`  | Preview the production build     |
 | `npm run generate` | Generate a static site           |
+| `npm run check:riot-key -- [platform] [GameName#TAG]` | Check that `RIOT_API_KEY` in `.env` works (default platform `euw1`) |
 
 ## Disclaimer
 
